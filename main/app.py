@@ -1,5 +1,6 @@
 # Importing req
-from flask import Flask, render_template
+from flask import Flask, render_template, request
+import stocks
 
 app = Flask(__name__)
 
@@ -12,6 +13,13 @@ def home():
 @app.route("/about")
 def about():
     return render_template("about.html")
+
+# adding a route to search
+@app.route("/search", methods=["POST"])
+def search():
+    ticker = request.form["ticker"] 
+    data = stocks.get_stock(ticker)
+    return render_template("results.html", data=data)
 
 if __name__ == "__main__":
     app.run(debug=True)
