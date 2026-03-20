@@ -7,6 +7,7 @@ info = stock.info
 print(info["currentPrice"])
 print(info["shortName"])
 print(info["sector"])
+print(info["longname"])
 
 # Get price history (last 5 days)
 history = stock.history(period="5d")

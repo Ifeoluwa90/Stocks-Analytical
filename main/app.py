@@ -17,9 +17,14 @@ def about():
 # adding a route to search
 @app.route("/search", methods=["POST"])
 def search():
-    ticker = request.form["ticker"] 
-    data = stocks.get_stock(ticker)
-    return render_template("results.html", data=data)
+    ticker = request.form["ticker"].upper()
+    
+    stock_data = stocks.get_stock(ticker)
+    valuation_data = stocks.get_stockvaluation(ticker)
+    
+    combined = {**stock_data, **valuation_data}
+    
+    return render_template("results.html", data=combined)
 
 if __name__ == "__main__":
     app.run(debug=True)
