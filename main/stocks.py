@@ -22,8 +22,11 @@ def get_stock(ticker):
     )
     high = round(historical_data["High"].max(), 2)
     low = round(historical_data["Low"].min(), 2)
-    analyst_data = stock.get_analyst_price_targets()
-    mean_target = analyst_data.get("mean") if analyst_data is not None else "N/A"
+    try:
+        analyst_data = stock.get_analyst_price_targets()
+        mean_target = analyst_data.get("mean") or "N/A"
+    except:
+        mean_target = "N/A"
     
     # For Chart.js - dates and prices
     dates = historical_data.index.strftime("%Y-%m-%d").tolist()
@@ -50,8 +53,8 @@ def get_stock(ticker):
         "sector": info.get("sector") or info.get("category", "N/A"),
         "high": high,
         "low": low,
-        "pe_ratio": round(info.get("trailingPE", 0), 2),
-        "eps": info.get("trailingEps", "N/A"),
+        "pe_ratio": round(info.get("trailingPE") or 0, 2),
+        "eps": info.get("trailingEps") or "N/A",
         "analyst_target": mean_target,
         
         # For Chart.js - dates and prices
@@ -92,7 +95,7 @@ def get_stockvaluation(stock_data):
         pe_signal = "Not enough data"
 
     # Formula 2 — Upside %
-    if analyst_target != "N/A":
+    if analyst_target and analyst_target != "N/A":
         upside_pct = ((analyst_target - current_price) / current_price) * 100
         if upside_pct > 20:
             upside_signal = "Strong Buy signal 🟢"
