@@ -60,7 +60,8 @@ Position % = ((Current Price - 52W Low) / (52W High - 52W Low)) x 100
 | Charts | Chart.js | Interactive price history chart |
 | Templating | Jinja2 | Passing Python data into HTML |
 | Server | Gunicorn | Production WSGI server |
-| Hosting | Render | Cloud deployment |
+| Tunnel | Tunnelmole | Public URL for self-hosted Pi |
+| Hardware | Raspberry Pi 3 A+ | Self-hosted server |
 
 ---
 
@@ -115,45 +116,92 @@ http://127.0.0.1:5000
 
 ---
 
-## Deployment (Render)
+## Deployment (Raspberry Pi + Tunnelmole)
 
-This app is deployed on [Render](https://render.com) - a free cloud platform that deploys directly from GitHub.
+This app is self-hosted on a Raspberry Pi 3 A+ running Raspberry Pi OS Lite (64-bit) and exposed to the internet via Tunnelmole.
 
-### Steps to deploy
+### Server Setup
 
-1. Sign up at render.com using your GitHub account
-2. Click New -> Web Service
-3. Select the Stocks-Analytical repo
-4. Fill in these settings:
+```bash
+# SSH into the Pi
+ssh ifewashere@YOUR-PI-IP
 
-| Field | Value |
-|---|---|
-| Name | stockview |
-| Language | Python 3 |
-| Branch | main |
-| Root Directory | main |
-| Build Command | pip install -r requirements.txt |
-| Start Command | gunicorn app:app |
-| Instance Type | Free |
+# Update and install dependencies
+sudo apt update && sudo apt upgrade -y
+sudo apt install python3-pip python3-venv git nodejs npm -y
 
-5. Click Deploy Web Service
+# Clone the project
+git clone https://github.com/Ifeoluwa90/Stocks-Analytical.git
+cd Stocks-Analytical/main
 
-Your app will be live at:
+# Set up virtual environment
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+mkdir cache
+
+# Install Tunnelmole
+sudo npm install -g tunnelmole
 ```
-https://stockview.onrender.com
+
+### Auto-start with Systemd
+
+Both Gunicorn and Tunnelmole are configured to start automatically on boot.
+
+#### Gunicorn service
+Create `/etc/systemd/system/stockview.service`:
+```ini
+[Unit]
+Description=StockView Flask App
+After=network.target
+
+[Service]
+User=ifewashere
+WorkingDirectory=/home/ifewashere/Stocks-Analytical/main
+ExecStart=/home/ifewashere/Stocks-Analytical/main/venv/bin/gunicorn -w 2 -b 127.0.0.1:5000 app:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
 ```
 
-### Free Tier Sleep Behaviour
-Render's free tier sleeps after 15 minutes of inactivity. The first visitor after that waits around 30-60 seconds for the app to wake up.
+#### Tunnelmole service
+Create `/etc/systemd/system/tunnelmole.service`:
+```ini
+[Unit]
+Description=Tunnelmole Tunnel
+After=network.target stockview.service
 
-### Fix - Keep alive with UptimeRobot (free)
-1. Sign up at uptimerobot.com
-2. Click Add New Monitor
-3. Set monitor type to HTTP(s)
-4. Enter your Render URL
-5. Set interval to every 5 minutes
+[Service]
+User=ifewashere
+ExecStart=/usr/local/bin/tmole 5000
+Restart=always
+RestartSec=5
 
-UptimeRobot pings your app every 5 minutes keeping it permanently awake, and emails you if it ever goes down.
+[Install]
+WantedBy=multi-user.target
+```
+
+#### Enable both services
+```bash
+sudo systemctl enable stockview
+sudo systemctl enable tunnelmole
+sudo systemctl start stockview
+sudo systemctl start tunnelmole
+```
+
+#### Verify both are running
+```bash
+sudo systemctl status stockview
+sudo systemctl status tunnelmole
+```
+
+### Get the public URL
+```bash
+curl -s http://localhost:4040/api/tunnels | python3 -m json.tool
+```
+
+Share the public URL with friends - no warning page, no sleep, always on.
 
 ---
 
@@ -172,7 +220,8 @@ UptimeRobot pings your app every 5 minutes keeping it permanently awake, and ema
 - ETFs do not have P/E ratio or EPS data - these will show as N/A
 - News requires yfinance v0.2.x+ due to updated Yahoo Finance API structure
 - Financial statements may be unavailable for some tickers - handled gracefully
-- Always use http:// not https:// unless SSL is configured
+- Tunnelmole URL changes on restart unless upgraded to a paid plan
+- Pi 3 A+ has 512MB RAM - avoid more than 2-3 simultaneous users
 
 ---
 
@@ -191,13 +240,14 @@ Disclaimer: This dashboard is for personal and educational use only. Nothing her
 - Data - yfinance / Yahoo Finance
 - Charts - Chart.js
 - Fonts - Syne + Space Mono (Google Fonts)
-- Hosting - Render
+- Hosting - Raspberry Pi 3 A+ (self-hosted)
+- Tunnel - Tunnelmole
 
 ---
 
 ## What I Learned Building This
 
-This project was built from scratch as a Python learning journey, going from complete beginner to a working full-stack web application deployed on a real cloud server. Key concepts covered:
+This project was built from scratch as a Python learning journey, going from complete beginner to a working full-stack web application deployed on a real self-hosted server. Key concepts covered:
 
 - Python fundamentals (variables, loops, conditionals, functions)
 - Working with external libraries and APIs
@@ -207,8 +257,10 @@ This project was built from scratch as a Python learning journey, going from com
 - JavaScript for chart rendering and UI interactions
 - Handling real-world data edge cases (missing fields, ETF vs stock differences)
 - Git version control and branch management
-- Cloud deployment on Render
+- Linux server administration (SSH, systemd, iptables)
+- Self-hosted deployment on Raspberry Pi
 - Virtual environments and production-grade servers with Gunicorn
+- Public tunneling with Tunnelmole
 
 ---
 
