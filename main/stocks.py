@@ -12,11 +12,18 @@ def get_stock(ticker):
     # Get info
     info = stock.info
     historical_data = stock.history(period="1y")
-    current_price = info.get("currentPrice", 0)
+    # etf fix
+    current_price = (
+        info.get("currentPrice") or
+        info.get("regularMarketPrice") or
+        info.get("navPrice") or
+        info.get("previousClose") or
+        0
+    )
     high = round(historical_data["High"].max(), 2)
     low = round(historical_data["Low"].min(), 2)
     analyst_data = stock.get_analyst_price_targets()
-    mean_target = analyst_data.get("mean", "N/A")
+    mean_target = analyst_data.get("mean") if analyst_data is not None else "N/A"
     
     # For Chart.js - dates and prices
     dates = historical_data.index.strftime("%Y-%m-%d").tolist()
