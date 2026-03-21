@@ -60,7 +60,7 @@ Position % = ((Current Price - 52W Low) / (52W High - 52W Low)) x 100
 | Charts | Chart.js | Interactive price history chart |
 | Templating | Jinja2 | Passing Python data into HTML |
 | Server | Gunicorn | Production WSGI server |
-| Tunnel | Tunnelmole | Public URL for self-hosted Pi |
+| Tunnel | Tunnelmole | Public URL for self-hosted server |
 | Hardware | Raspberry Pi 3 A+ | Self-hosted server |
 
 ---
@@ -88,7 +88,7 @@ Stocks-Analytical/
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/Ifeoluwa90/Stocks-Analytical.git
+git clone https://github.com/YOUR_GITHUB_USERNAME/Stocks-Analytical.git
 cd Stocks-Analytical/main
 ```
 
@@ -118,20 +118,20 @@ http://127.0.0.1:5000
 
 ## Deployment (Raspberry Pi + Tunnelmole)
 
-This app is self-hosted on a Raspberry Pi 3 A+ running Raspberry Pi OS Lite (64-bit) and exposed to the internet via Tunnelmole.
+This app is self-hosted on a Raspberry Pi running Raspberry Pi OS Lite (64-bit) and exposed to the internet via Tunnelmole.
 
 ### Server Setup
 
 ```bash
 # SSH into the Pi
-ssh ifewashere@YOUR-PI-IP
+ssh YOUR_USERNAME@YOUR_PI_IP
 
 # Update and install dependencies
 sudo apt update && sudo apt upgrade -y
 sudo apt install python3-pip python3-venv git nodejs npm -y
 
 # Clone the project
-git clone https://github.com/Ifeoluwa90/Stocks-Analytical.git
+git clone https://github.com/YOUR_GITHUB_USERNAME/Stocks-Analytical.git
 cd Stocks-Analytical/main
 
 # Set up virtual environment
@@ -156,9 +156,9 @@ Description=StockView Flask App
 After=network.target
 
 [Service]
-User=ifewashere
-WorkingDirectory=/home/ifewashere/Stocks-Analytical/main
-ExecStart=/home/ifewashere/Stocks-Analytical/main/venv/bin/gunicorn -w 2 -b 127.0.0.1:5000 app:app
+User=YOUR_USERNAME
+WorkingDirectory=/home/YOUR_USERNAME/Stocks-Analytical/main
+ExecStart=/home/YOUR_USERNAME/Stocks-Analytical/main/venv/bin/gunicorn -w 2 -b 127.0.0.1:5000 app:app
 Restart=always
 
 [Install]
@@ -173,7 +173,7 @@ Description=Tunnelmole Tunnel
 After=network.target stockview.service
 
 [Service]
-User=ifewashere
+User=YOUR_USERNAME
 ExecStart=/usr/local/bin/tmole 5000
 Restart=always
 RestartSec=5
@@ -221,7 +221,7 @@ Share the public URL with friends - no warning page, no sleep, always on.
 - News requires yfinance v0.2.x+ due to updated Yahoo Finance API structure
 - Financial statements may be unavailable for some tickers - handled gracefully
 - Tunnelmole URL changes on restart unless upgraded to a paid plan
-- Pi 3 A+ has 512MB RAM - avoid more than 2-3 simultaneous users
+- Raspberry Pi 3 A+ has 512MB RAM - avoid more than 2-3 simultaneous users
 
 ---
 
@@ -240,7 +240,7 @@ Disclaimer: This dashboard is for personal and educational use only. Nothing her
 - Data - yfinance / Yahoo Finance
 - Charts - Chart.js
 - Fonts - Syne + Space Mono (Google Fonts)
-- Hosting - Raspberry Pi 3 A+ (self-hosted)
+- Hosting - Raspberry Pi (self-hosted)
 - Tunnel - Tunnelmole
 
 ---
@@ -257,7 +257,7 @@ This project was built from scratch as a Python learning journey, going from com
 - JavaScript for chart rendering and UI interactions
 - Handling real-world data edge cases (missing fields, ETF vs stock differences)
 - Git version control and branch management
-- Linux server administration (SSH, systemd, iptables)
+- Linux server administration (SSH, systemd)
 - Self-hosted deployment on Raspberry Pi
 - Virtual environments and production-grade servers with Gunicorn
 - Public tunneling with Tunnelmole
