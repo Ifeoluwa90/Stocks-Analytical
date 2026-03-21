@@ -6,13 +6,13 @@ A personal stock analytics dashboard built with Python and Flask. Search any sto
 
 ## Features
 
-- **Live Stock & ETF Data** — pulls real-time prices, sector, EPS, and analyst targets via yfinance
-- **Valuation Signals** — three investor-grade formulas to assess whether a stock is worth buying
-- **1-Year Price Chart** — interactive Chart.js line chart with gradient fill and custom tooltips
-- **Latest News** — top 5 news articles with thumbnails and publisher names
-- **Financial Statements** — toggle between Annual Earnings, Quarterly Earnings, and Balance Sheet
-- **ETF Support** — handles both stocks and ETFs gracefully (sector vs category fallback)
-- **Smart Caching** — stock data cached for 15 minutes to improve speed and reduce API calls
+- **Live Stock & ETF Data** - pulls real-time prices, sector, EPS, and analyst targets via yfinance
+- **Valuation Signals** - three investor-grade formulas to assess whether a stock is worth buying
+- **1-Year Price Chart** - interactive Chart.js line chart with gradient fill and custom tooltips
+- **Latest News** - top 5 news articles with thumbnails and publisher names
+- **Financial Statements** - toggle between Annual Earnings, Quarterly Earnings, and Balance Sheet
+- **ETF Support** - handles both stocks and ETFs gracefully (sector vs category fallback)
+- **Smart Caching** - stock data cached for 15 minutes to improve speed and reduce API calls
 
 ---
 
