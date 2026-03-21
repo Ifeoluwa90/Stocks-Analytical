@@ -1,5 +1,11 @@
 import yfinance as yf
 
+def safe_to_html(df):
+    try:
+        return df.to_html()
+    except:
+        return "<p>Data not available</p>"
+
 def get_stock(ticker):
     stock = yf.Ticker(ticker)
     
@@ -13,9 +19,22 @@ def get_stock(ticker):
     mean_target = analyst_data.get("mean", "N/A")
     
     # For Chart.js - dates and prices
-    history = stock.history(period="1y")
-    dates = history.index.strftime("%Y-%m-%d").tolist()
-    prices = round(history["Close"], 2).tolist()
+    dates = historical_data.index.strftime("%Y-%m-%d").tolist()
+    prices = round(historical_data["Close"], 2).tolist()
+    
+    # Nice to have for investors
+    news_raw = stock.news[:5]
+    news = []
+    for article in news_raw:
+        try:
+            news.append({
+                "title": article["content"]["title"],
+                "link": article["content"]["canonicalUrl"]["url"],
+                "publisher": article["content"]["provider"]["displayName"],
+                "thumbnail": article["content"]["thumbnail"]["resolutions"][1]["url"]
+            })
+        except:
+            pass
 
     return {
         "name": info.get("shortName", "N/A"),
@@ -27,13 +46,19 @@ def get_stock(ticker):
         "pe_ratio": round(info.get("trailingPE", 0), 2),
         "eps": info.get("trailingEps", "N/A"),
         "analyst_target": mean_target,
+        
         # For Chart.js - dates and prices
         "dates" : dates,
         "prices" : prices,
+        
+        # Extras
+        "news": news,
+        "income_stmt": safe_to_html(stock.income_stmt),
+        "quarterly_income": safe_to_html(stock.quarterly_income_stmt),
+        "balance_sheet": safe_to_html(stock.balance_sheet),
     }
-
-def get_stockvaluation(ticker):
-    stock_data = get_stock(ticker)
+    
+def get_stockvaluation(stock_data):
 
     current_price = stock_data["price"]
     high = stock_data["high"]
@@ -64,7 +89,7 @@ def get_stockvaluation(ticker):
         upside_pct = ((analyst_target - current_price) / current_price) * 100
         if upside_pct > 20:
             upside_signal = "Strong Buy signal 🟢"
-        elif 0 <= upside_pct <= 20:  # ✅ fixed
+        elif 0 <= upside_pct <= 20:  
             upside_signal = "Hold 🟡"
         else:
             upside_signal = "Overvalued vs expectations 🔴"

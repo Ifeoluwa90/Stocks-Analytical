@@ -15,13 +15,12 @@ def about():
     return render_template("about.html")
 
 # adding a route to search
+# app.py - fetch once, pass to both #fixed
 @app.route("/search", methods=["POST"])
 def search():
     ticker = request.form["ticker"].upper()
-    
-    stock_data = stocks.get_stock(ticker)
-    valuation_data = stocks.get_stockvaluation(ticker)
-    
+    stock_data = stocks.get_stock(ticker)              
+    valuation_data = stocks.get_stockvaluation(stock_data)  
     combined = {**stock_data, **valuation_data}
     
     return render_template("results.html", data=combined)

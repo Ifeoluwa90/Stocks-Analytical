@@ -1,10 +1,110 @@
 <!DOCTYPE html>
-<html>
-    <head><title> About </title></head>
-    <body>
-        <h2> About </h2>
-        <p>This dashboard is for personal use because 
-        I have always been interested in stocks!</P>
-        <a href="/">Homepage</a>
-    </body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>About - StockView</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: #111118;
+            --border: #1e1e2e;
+            --accent: #00ff88;
+            --text: #e0e0f0;
+            --muted: #555570;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Syne', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0,255,136,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,255,136,0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        .card {
+            position: relative;
+            z-index: 1;
+            max-width: 540px;
+            width: 90vw;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2.5rem;
+            animation: fadeUp 0.6s ease both;
+        }
+
+        .logo {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--accent);
+            letter-spacing: 0.3em;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            color: var(--muted);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 1.5rem 0;
+        }
+
+        a {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--muted);
+            text-decoration: none;
+            letter-spacing: 0.1em;
+            transition: color 0.2s;
+        }
+
+        a:hover { color: var(--accent); }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <p class="logo">▸ STOCKVIEW TERMINAL</p>
+        <h1>About</h1>
+        <p>
+            This dashboard was built for personal use — because having fast access to
+            meaningful stock data and valuation signals matters when making investment decisions.
+            Built with Python, Flask, and yfinance.
+        </p>
+        <div class="divider"></div>
+        <a href="/">← Back to Search</a>
+    </div>
+</body>
 </html>

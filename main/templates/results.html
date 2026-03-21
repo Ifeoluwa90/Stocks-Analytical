@@ -1,47 +1,503 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>{{ data.longname }}</title>
+    <meta charset="UTF-8">
+    <title>{{ data.name }} — StockView</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: #111118;
+            --surface2: #16161f;
+            --border: #1e1e2e;
+            --accent: #00ff88;
+            --accent2: #0099ff;
+            --warn: #ffcc00;
+            --danger: #ff4466;
+            --text: #e0e0f0;
+            --muted: #555570;
+            --green: #00ff88;
+            --yellow: #ffcc00;
+            --red: #ff4466;
+        }
+ 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+ 
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Syne', sans-serif;
+            min-height: 100vh;
+        }
+ 
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0,255,136,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,255,136,0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+ 
+        /* ── Layout ── */
+        .page { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; position: relative; z-index: 1; }
+ 
+        /* ── Nav ── */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+ 
+        .topbar-logo {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--accent);
+            letter-spacing: 0.3em;
+        }
+ 
+        .topbar a {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+ 
+        .topbar a:hover { color: var(--accent); }
+ 
+        /* ── Header ── */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            animation: fadeUp 0.5s ease both;
+        }
+ 
+        .company-name {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            font-weight: 800;
+            line-height: 1;
+        }
+ 
+        .ticker-badge {
+            display: inline-block;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            background: rgba(0,255,136,0.1);
+            border: 1px solid rgba(0,255,136,0.3);
+            color: var(--accent);
+            border-radius: 3px;
+            margin-left: 0.75rem;
+            vertical-align: middle;
+        }
+ 
+        .sector-tag {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--muted);
+            margin-top: 0.4rem;
+            letter-spacing: 0.1em;
+        }
+ 
+        .price-block { text-align: right; }
+ 
+        .current-price {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            font-family: 'Space Mono', monospace;
+            color: var(--accent);
+        }
+ 
+        .price-label {
+            font-size: 0.7rem;
+            color: var(--muted);
+            font-family: 'Space Mono', monospace;
+            letter-spacing: 0.1em;
+        }
+ 
+        /* ── Stats Grid ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            animation: fadeUp 0.5s 0.1s ease both;
+        }
+ 
+        .stat-card {
+            background: var(--surface);
+            padding: 1.25rem;
+            transition: background 0.2s;
+        }
+ 
+        .stat-card:hover { background: var(--surface2); }
+ 
+        .stat-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.62rem;
+            color: var(--muted);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+ 
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            font-family: 'Space Mono', monospace;
+            margin-bottom: 0.3rem;
+        }
+ 
+        .stat-signal {
+            font-size: 0.7rem;
+            font-family: 'Space Mono', monospace;
+        }
+ 
+        .sig-green { color: var(--green); }
+        .sig-yellow { color: var(--yellow); }
+        .sig-red { color: var(--red); }
+ 
+        /* ── Chart ── */
+        .chart-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            animation: fadeUp 0.5s 0.2s ease both;
+        }
+ 
+        .section-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--muted);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 1.25rem;
+        }
+ 
+        /* ── News ── */
+        .news-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            animation: fadeUp 0.5s 0.3s ease both;
+        }
+ 
+        .news-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--muted);
+            letter-spacing: 0.2em;
+        }
+ 
+        .news-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+        }
+ 
+        .news-item:last-child { border-bottom: none; }
+        .news-item:hover { background: var(--surface2); }
+ 
+        .news-item a {
+            color: var(--text);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            line-height: 1.4;
+            transition: color 0.15s;
+        }
+ 
+        .news-item a:hover { color: var(--accent); }
+ 
+        .news-item a::after {
+            content: ' ↗';
+            font-size: 0.7rem;
+            color: var(--muted);
+        }
+ 
+        /* ── Financials ── */
+        .financials-section {
+            margin-bottom: 2rem;
+            animation: fadeUp 0.5s 0.4s ease both;
+        }
+ 
+        .fin-buttons {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+ 
+        .fin-btn {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            padding: 0.6rem 1.25rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.05em;
+        }
+ 
+        .fin-btn:hover, .fin-btn.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(0,255,136,0.05);
+        }
+ 
+        .fin-table-wrap {
+            display: none;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: auto;
+            padding: 1.5rem;
+        }
+ 
+        .fin-table-wrap.open { display: block; }
+ 
+        /* Style the auto-generated yfinance tables */
+        .fin-table-wrap table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.72rem;
+        }
+ 
+        .fin-table-wrap th {
+            color: var(--muted);
+            text-align: right;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+ 
+        .fin-table-wrap td {
+            color: var(--text);
+            text-align: right;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid rgba(30,30,46,0.5);
+        }
+ 
+        .fin-table-wrap tr:first-child th:first-child,
+        .fin-table-wrap td:first-child {
+            text-align: left;
+            color: var(--muted);
+        }
+ 
+        /* ── Back link ── */
+        .back-link {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--muted);
+            text-decoration: none;
+            letter-spacing: 0.1em;
+            transition: color 0.2s;
+        }
+ 
+        .back-link:hover { color: var(--accent); }
+ 
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body>
-
-    <!-- Section 1 — Header -->
-    <h2>📈 {{ data.name }} ({{ data.sector }})</h2>
-    <h3>Current Price: ${{ data.price }}</h3>
-
-    <!-- Section 2 — Key Stats -->
-    <table>
-        <tr><td>52W High</td>        <td>${{ data.high }}</td></tr>
-        <tr><td>52W Low</td>         <td>${{ data.low }}</td></tr>
-        <tr><td>P/E Ratio</td>       <td>{{ data.pe_ratio }} - {{ data.pe_signal }}</td></tr>
-        <tr><td>EPS</td>             <td>${{ data.eps }}</td></tr>
-        <tr><td>Analyst Target</td>  <td>${{ data.analyst_target }} - {{ data.upside_signal }}</td></tr>
-        <tr><td>52W Position</td>    <td>{{ data.week52_position }}% - {{ data.week52_signal }}</td></tr>
-    </table>
-
-    <!-- Section 3 — Chart -->
-    <canvas id="priceChart" width="800" height="300"></canvas>
-    <script>
-        const dates = {{ data.dates | tojson }};
-        const prices = {{ data.prices | tojson }};
-
-        new Chart(document.getElementById("priceChart"), {
-            type: "line",
-            data: {
-                labels: dates,
-                datasets: [{
-                    label: "Price (1Y)",
-                    data: prices,
-                    borderColor: "#00ff88",
-                    fill: false,
-                }]
+<div class="page">
+ 
+    <!-- Topbar -->
+    <div class="topbar">
+        <span class="topbar-logo">▸ STOCKVIEW</span>
+        <a href="/">← New Search</a>
+    </div>
+ 
+    <!-- Header -->
+    <div class="header">
+        <div>
+            <div class="company-name">
+                {{ data.name }}
+                <span class="ticker-badge">{{ data.longname }}</span>
+            </div>
+            <div class="sector-tag">// {{ data.sector }}</div>
+        </div>
+        <div class="price-block">
+            <div class="price-label">CURRENT PRICE</div>
+            <div class="current-price">${{ data.price }}</div>
+        </div>
+    </div>
+ 
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">52W HIGH</div>
+            <div class="stat-value">${{ data.high }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">52W LOW</div>
+            <div class="stat-value">${{ data.low }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">P/E RATIO</div>
+            <div class="stat-value">{{ data.pe_ratio }}</div>
+            <div class="stat-signal">{{ data.pe_signal }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">EPS</div>
+            <div class="stat-value">${{ data.eps }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">ANALYST TARGET</div>
+            <div class="stat-value">${{ data.analyst_target }}</div>
+            <div class="stat-signal">{{ data.upside_signal }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">52W POSITION</div>
+            <div class="stat-value">{{ data.week52_position }}%</div>
+            <div class="stat-signal">{{ data.week52_signal }}</div>
+        </div>
+    </div>
+ 
+    <!-- Chart -->
+    <div class="chart-section">
+        <div class="section-title">// 1 YEAR PRICE HISTORY</div>
+        <canvas id="priceChart" height="100"></canvas>
+    </div>
+ 
+    <!-- News -->
+    <div class="news-section">
+        <div class="news-header">// LATEST NEWS</div>
+        {% for article in data.news %}
+        <div class="news-item">
+            <img src="{{ article.thumbnail }}" width="60" style="float:left; margin-right:10px;">
+            <a href="{{ article.link }}" target="_blank">{{ article.title }}</a>
+            <br>
+            <small>{{ article.publisher }}</small>
+    </div>
+    {% endfor %}
+    </div>
+ 
+    <!-- Financial Statements -->
+    <div class="financials-section">
+        <div class="section-title">// FINANCIAL STATEMENTS</div>
+        <div class="fin-buttons">
+            <button class="fin-btn" onclick="toggleFin('earnings', this)">📊 Annual Earnings</button>
+            <button class="fin-btn" onclick="toggleFin('quarterly', this)">📊 Quarterly Earnings</button>
+            <button class="fin-btn" onclick="toggleFin('balance', this)">📋 Balance Sheet</button>
+        </div>
+ 
+        <div id="earnings" class="fin-table-wrap">{{ data.income_stmt | safe }}</div>
+        <div id="quarterly" class="fin-table-wrap">{{ data.quarterly_income | safe }}</div>
+        <div id="balance" class="fin-table-wrap">{{ data.balance_sheet | safe }}</div>
+    </div>
+ 
+    <a href="/" class="back-link">← Search another stock</a>
+ 
+</div>
+ 
+<script>
+    // Chart
+    const dates = {{ data.dates | tojson }};
+    const prices = {{ data.prices | tojson }};
+ 
+    new Chart(document.getElementById("priceChart"), {
+        type: "line",
+        data: {
+            labels: dates,
+            datasets: [{
+                label: "Price (1Y)",
+                data: prices,
+                borderColor: "#00ff88",
+                borderWidth: 1.5,
+                pointRadius: 0,
+                fill: true,
+                backgroundColor: (ctx) => {
+                    const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 300);
+                    gradient.addColorStop(0, "rgba(0,255,136,0.15)");
+                    gradient.addColorStop(1, "rgba(0,255,136,0)");
+                    return gradient;
+                },
+                tension: 0.3,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: "#111118",
+                    borderColor: "#1e1e2e",
+                    borderWidth: 1,
+                    titleColor: "#555570",
+                    bodyColor: "#00ff88",
+                    titleFont: { family: "Space Mono", size: 10 },
+                    bodyFont: { family: "Space Mono", size: 12 },
+                    callbacks: {
+                        label: (ctx) => ` $${ctx.parsed.y}`
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: "rgba(255,255,255,0.03)" },
+                    ticks: {
+                        color: "#555570",
+                        font: { family: "Space Mono", size: 9 },
+                        maxTicksLimit: 8
+                    }
+                },
+                y: {
+                    position: "right",
+                    grid: { color: "rgba(255,255,255,0.03)" },
+                    ticks: {
+                        color: "#555570",
+                        font: { family: "Space Mono", size: 9 },
+                        callback: (v) => `$${v}`
+                    }
+                }
             }
-        });
-    </script>
-
-    <br>
-    <a href="/">Search another stock</a>
-
+        }
+    });
+ 
+    // Toggle financial tables
+    function toggleFin(id, btn) {
+        const allTables = document.querySelectorAll('.fin-table-wrap');
+        const allBtns = document.querySelectorAll('.fin-btn');
+        const target = document.getElementById(id);
+        const isOpen = target.classList.contains('open');
+ 
+        allTables.forEach(t => t.classList.remove('open'));
+        allBtns.forEach(b => b.classList.remove('active'));
+ 
+        if (!isOpen) {
+            target.classList.add('open');
+            btn.classList.add('active');
+        }
+    }
+</script>
 </body>
 </html>
