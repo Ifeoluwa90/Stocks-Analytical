@@ -21,16 +21,16 @@
             --yellow: #ffcc00;
             --red: #ff4466;
         }
- 
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
- 
+
         body {
             background: var(--bg);
             color: var(--text);
             font-family: 'Syne', sans-serif;
             min-height: 100vh;
         }
- 
+
         body::before {
             content: '';
             position: fixed;
@@ -42,11 +42,10 @@
             pointer-events: none;
             z-index: 0;
         }
- 
-        /* ── Layout ── */
+
         .page { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; position: relative; z-index: 1; }
- 
-        /* ── Nav ── */
+
+        /* ── Topbar ── */
         .topbar {
             display: flex;
             justify-content: space-between;
@@ -54,25 +53,98 @@
             margin-bottom: 2.5rem;
             padding-bottom: 1rem;
             border-bottom: 1px solid var(--border);
+            gap: 1rem;
+            flex-wrap: wrap;
         }
- 
+
         .topbar-logo {
             font-family: 'Space Mono', monospace;
             font-size: 0.7rem;
             color: var(--accent);
             letter-spacing: 0.3em;
+            white-space: nowrap;
         }
- 
-        .topbar a {
+
+        .topbar-search {
+            display: flex;
+            gap: 0;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            background: var(--surface);
+            flex: 1;
+            max-width: 320px;
+            transition: border-color 0.2s;
+        }
+
+        .topbar-search:focus-within { border-color: var(--accent); }
+
+        .topbar-search input {
+            flex: 1;
+            padding: 0.5rem 0.9rem;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+            min-width: 0;
+        }
+
+        .topbar-search input::placeholder { color: var(--muted); }
+
+        .topbar-search button {
+            padding: 0.5rem 1rem;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            cursor: pointer;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+
+        .topbar-search button:hover { background: #00e07a; }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+
+        .watchlist-btn {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            padding: 0.45rem 1rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
+
+        .watchlist-btn:hover, .watchlist-btn.saved {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(0,255,136,0.05);
+        }
+
+        .topbar-link {
             font-family: 'Space Mono', monospace;
             font-size: 0.75rem;
             color: var(--muted);
             text-decoration: none;
             transition: color 0.2s;
+            white-space: nowrap;
         }
- 
-        .topbar a:hover { color: var(--accent); }
- 
+
+        .topbar-link:hover { color: var(--accent); }
+
         /* ── Header ── */
         .header {
             display: flex;
@@ -83,13 +155,13 @@
             margin-bottom: 2rem;
             animation: fadeUp 0.5s ease both;
         }
- 
+
         .company-name {
             font-size: clamp(1.8rem, 5vw, 3rem);
             font-weight: 800;
             line-height: 1;
         }
- 
+
         .ticker-badge {
             display: inline-block;
             font-family: 'Space Mono', monospace;
@@ -102,7 +174,7 @@
             margin-left: 0.75rem;
             vertical-align: middle;
         }
- 
+
         .sector-tag {
             font-family: 'Space Mono', monospace;
             font-size: 0.7rem;
@@ -110,27 +182,39 @@
             margin-top: 0.4rem;
             letter-spacing: 0.1em;
         }
- 
+
         .price-block { text-align: right; }
- 
+
         .current-price {
             font-size: clamp(2rem, 5vw, 3.5rem);
             font-weight: 800;
             font-family: 'Space Mono', monospace;
             color: var(--accent);
+            line-height: 1;
         }
- 
+
+        .price-change {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+        }
+
+        .price-change.up { color: var(--green); }
+        .price-change.down { color: var(--red); }
+        .price-change.flat { color: var(--muted); }
+
         .price-label {
             font-size: 0.7rem;
             color: var(--muted);
             font-family: 'Space Mono', monospace;
             letter-spacing: 0.1em;
+            margin-bottom: 0.25rem;
         }
- 
+
         /* ── Stats Grid ── */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 1px;
             background: var(--border);
             border: 1px solid var(--border);
@@ -139,15 +223,15 @@
             margin-bottom: 2rem;
             animation: fadeUp 0.5s 0.1s ease both;
         }
- 
+
         .stat-card {
             background: var(--surface);
             padding: 1.25rem;
             transition: background 0.2s;
         }
- 
+
         .stat-card:hover { background: var(--surface2); }
- 
+
         .stat-label {
             font-family: 'Space Mono', monospace;
             font-size: 0.62rem;
@@ -156,23 +240,24 @@
             text-transform: uppercase;
             margin-bottom: 0.5rem;
         }
- 
+
         .stat-value {
             font-size: 1.3rem;
             font-weight: 700;
             font-family: 'Space Mono', monospace;
             margin-bottom: 0.3rem;
         }
- 
+
         .stat-signal {
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             font-family: 'Space Mono', monospace;
         }
- 
+
         .sig-green { color: var(--green); }
         .sig-yellow { color: var(--yellow); }
         .sig-red { color: var(--red); }
- 
+        .sig-muted { color: var(--muted); }
+
         /* ── Chart ── */
         .chart-section {
             background: var(--surface);
@@ -182,16 +267,44 @@
             margin-bottom: 2rem;
             animation: fadeUp 0.5s 0.2s ease both;
         }
- 
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
         .section-title {
             font-family: 'Space Mono', monospace;
             font-size: 0.7rem;
             color: var(--muted);
             letter-spacing: 0.2em;
             text-transform: uppercase;
-            margin-bottom: 1.25rem;
         }
- 
+
+        .chart-legend {
+            display: flex;
+            gap: 1.25rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--muted);
+        }
+
+        .legend-dot {
+            width: 18px;
+            height: 2px;
+            border-radius: 1px;
+        }
+
         /* ── News ── */
         .news-section {
             background: var(--surface);
@@ -201,7 +314,7 @@
             margin-bottom: 2rem;
             animation: fadeUp 0.5s 0.3s ease both;
         }
- 
+
         .news-header {
             padding: 1rem 1.5rem;
             border-bottom: 1px solid var(--border);
@@ -210,46 +323,68 @@
             color: var(--muted);
             letter-spacing: 0.2em;
         }
- 
+
         .news-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
             padding: 1rem 1.5rem;
             border-bottom: 1px solid var(--border);
             transition: background 0.15s;
         }
- 
+
         .news-item:last-child { border-bottom: none; }
         .news-item:hover { background: var(--surface2); }
- 
-        .news-item a {
+
+        .news-thumb {
+            width: 64px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 3px;
+            flex-shrink: 0;
+            background: var(--border);
+        }
+
+        .news-content { flex: 1; min-width: 0; }
+
+        .news-content a {
+            display: block;
             color: var(--text);
             text-decoration: none;
             font-size: 0.9rem;
             font-weight: 600;
             line-height: 1.4;
             transition: color 0.15s;
+            margin-bottom: 0.3rem;
         }
- 
-        .news-item a:hover { color: var(--accent); }
- 
-        .news-item a::after {
+
+        .news-content a:hover { color: var(--accent); }
+
+        .news-content a::after {
             content: ' ↗';
             font-size: 0.7rem;
             color: var(--muted);
         }
- 
+
+        .news-publisher {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--muted);
+        }
+
         /* ── Financials ── */
         .financials-section {
             margin-bottom: 2rem;
             animation: fadeUp 0.5s 0.4s ease both;
         }
- 
+
         .fin-buttons {
             display: flex;
             gap: 0.75rem;
             flex-wrap: wrap;
             margin-bottom: 1rem;
         }
- 
+
         .fin-btn {
             font-family: 'Space Mono', monospace;
             font-size: 0.75rem;
@@ -262,13 +397,13 @@
             transition: all 0.2s;
             letter-spacing: 0.05em;
         }
- 
+
         .fin-btn:hover, .fin-btn.active {
             border-color: var(--accent);
             color: var(--accent);
             background: rgba(0,255,136,0.05);
         }
- 
+
         .fin-table-wrap {
             display: none;
             background: var(--surface);
@@ -277,17 +412,16 @@
             overflow: auto;
             padding: 1.5rem;
         }
- 
+
         .fin-table-wrap.open { display: block; }
- 
-        /* Style the auto-generated yfinance tables */
+
         .fin-table-wrap table {
             width: 100%;
             border-collapse: collapse;
             font-family: 'Space Mono', monospace;
             font-size: 0.72rem;
         }
- 
+
         .fin-table-wrap th {
             color: var(--muted);
             text-align: right;
@@ -295,32 +429,20 @@
             border-bottom: 1px solid var(--border);
             white-space: nowrap;
         }
- 
+
         .fin-table-wrap td {
             color: var(--text);
             text-align: right;
             padding: 0.5rem 1rem;
             border-bottom: 1px solid rgba(30,30,46,0.5);
         }
- 
+
         .fin-table-wrap tr:first-child th:first-child,
         .fin-table-wrap td:first-child {
             text-align: left;
             color: var(--muted);
         }
- 
-        /* ── Back link ── */
-        .back-link {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.75rem;
-            color: var(--muted);
-            text-decoration: none;
-            letter-spacing: 0.1em;
-            transition: color 0.2s;
-        }
- 
-        .back-link:hover { color: var(--accent); }
- 
+
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
@@ -329,13 +451,22 @@
 </head>
 <body>
 <div class="page">
- 
+
     <!-- Topbar -->
     <div class="topbar">
         <span class="topbar-logo">▸ STOCKVIEW</span>
-        <a href="/">← New Search</a>
+
+        <form class="topbar-search" action="/search" method="POST">
+            <input type="text" name="ticker" placeholder="Search ticker..." autocomplete="off">
+            <button type="submit">GO →</button>
+        </form>
+
+        <div class="topbar-right">
+            <button class="watchlist-btn" id="watchlistBtn" onclick="toggleWatchlist()">+ WATCHLIST</button>
+            <a href="/" class="topbar-link">← HOME</a>
+        </div>
     </div>
- 
+
     <!-- Header -->
     <div class="header">
         <div>
@@ -348,9 +479,18 @@
         <div class="price-block">
             <div class="price-label">CURRENT PRICE</div>
             <div class="current-price">${{ data.price }}</div>
+            {% set chg = data.day_change %}
+            {% set chg_pct = data.day_change_pct %}
+            {% if chg > 0 %}
+                <div class="price-change up">▲ ${{ chg }} ({{ chg_pct }}%)</div>
+            {% elif chg < 0 %}
+                <div class="price-change down">▼ ${{ chg | abs }} ({{ chg_pct | abs }}%)</div>
+            {% else %}
+                <div class="price-change flat">— No change data</div>
+            {% endif %}
         </div>
     </div>
- 
+
     <!-- Stats Grid -->
     <div class="stats-grid">
         <div class="stat-card">
@@ -362,90 +502,199 @@
             <div class="stat-value">${{ data.low }}</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">P/E RATIO</div>
+            <div class="stat-label">MARKET CAP</div>
+            <div class="stat-value" id="mktcap">{{ data.market_cap }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">TRAILING P/E</div>
             <div class="stat-value">{{ data.pe_ratio }}</div>
-            <div class="stat-signal">{{ data.pe_signal }}</div>
+            {% if data.pe_signal == "Potentially undervalued" %}
+                <div class="stat-signal sig-green">{{ data.pe_signal }}</div>
+            {% elif data.pe_signal == "Fairly valued" %}
+                <div class="stat-signal sig-yellow">{{ data.pe_signal }}</div>
+            {% elif data.pe_signal == "Potentially overvalued" %}
+                <div class="stat-signal sig-red">{{ data.pe_signal }}</div>
+            {% else %}
+                <div class="stat-signal sig-muted">{{ data.pe_signal }}</div>
+            {% endif %}
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">FORWARD P/E</div>
+            <div class="stat-value">{% if data.forward_pe and data.forward_pe != 0 %}{{ data.forward_pe }}{% else %}N/A{% endif %}</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">EPS</div>
-            <div class="stat-value">${{ data.eps }}</div>
+            <div class="stat-value">{% if data.eps != "N/A" %}${{ data.eps }}{% else %}N/A{% endif %}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">DIVIDEND YIELD</div>
+            <div class="stat-value">{% if data.dividend_yield and data.dividend_yield != 0 %}{{ data.dividend_yield }}%{% else %}—{% endif %}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">BETA</div>
+            <div class="stat-value">{% if data.beta and data.beta != 0 %}{{ data.beta }}{% else %}N/A{% endif %}</div>
+            {% if data.beta %}
+                {% if data.beta < 0.8 %}
+                    <div class="stat-signal sig-green">Low volatility</div>
+                {% elif data.beta <= 1.2 %}
+                    <div class="stat-signal sig-yellow">Market-like</div>
+                {% else %}
+                    <div class="stat-signal sig-red">High volatility</div>
+                {% endif %}
+            {% endif %}
         </div>
         <div class="stat-card">
             <div class="stat-label">ANALYST TARGET</div>
-            <div class="stat-value">${{ data.analyst_target }}</div>
-            <div class="stat-signal">{{ data.upside_signal }}</div>
+            <div class="stat-value">{% if data.analyst_target != "N/A" %}${{ data.analyst_target | round(2) }}{% else %}N/A{% endif %}</div>
+            {% if data.upside_signal == "Strong Buy signal" %}
+                <div class="stat-signal sig-green">{{ data.upside_signal }} ({{ data.upside_pct }}%)</div>
+            {% elif data.upside_signal == "Hold" %}
+                <div class="stat-signal sig-yellow">{{ data.upside_signal }} ({{ data.upside_pct }}%)</div>
+            {% elif data.upside_signal == "Overvalued vs expectations" %}
+                <div class="stat-signal sig-red">{{ data.upside_signal }} ({{ data.upside_pct }}%)</div>
+            {% else %}
+                <div class="stat-signal sig-muted">{{ data.upside_signal }}</div>
+            {% endif %}
         </div>
         <div class="stat-card">
             <div class="stat-label">52W POSITION</div>
             <div class="stat-value">{{ data.week52_position }}%</div>
-            <div class="stat-signal">{{ data.week52_signal }}</div>
+            {% if data.week52_signal == "Near bottom, possible opportunity" %}
+                <div class="stat-signal sig-green">{{ data.week52_signal }}</div>
+            {% elif data.week52_signal == "Middle of range" %}
+                <div class="stat-signal sig-yellow">{{ data.week52_signal }}</div>
+            {% elif data.week52_signal == "Near peak, be cautious" %}
+                <div class="stat-signal sig-red">{{ data.week52_signal }}</div>
+            {% else %}
+                <div class="stat-signal sig-muted">{{ data.week52_signal }}</div>
+            {% endif %}
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">NEXT EARNINGS</div>
+            <div class="stat-value" style="font-size:1rem;">{{ data.earnings_date }}</div>
         </div>
     </div>
- 
+
     <!-- Chart -->
     <div class="chart-section">
-        <div class="section-title">// 1 YEAR PRICE HISTORY</div>
+        <div class="chart-header">
+            <div class="section-title">// 1 YEAR PRICE HISTORY</div>
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <div class="legend-dot" style="background:#00ff88;"></div> Price
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background:#0099ff;"></div> 50D MA
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background:#ffcc00;"></div> 200D MA
+                </div>
+            </div>
+        </div>
         <canvas id="priceChart" height="100"></canvas>
     </div>
- 
+
     <!-- News -->
+    {% if data.news %}
     <div class="news-section">
         <div class="news-header">// LATEST NEWS</div>
         {% for article in data.news %}
         <div class="news-item">
-            <img src="{{ article.thumbnail }}" width="60" style="float:left; margin-right:10px;">
-            <a href="{{ article.link }}" target="_blank">{{ article.title }}</a>
-            <br>
-            <small>{{ article.publisher }}</small>
+            <img class="news-thumb" src="{{ article.thumbnail }}" alt="" loading="lazy">
+            <div class="news-content">
+                <a href="{{ article.link }}" target="_blank" rel="noopener noreferrer">{{ article.title }}</a>
+                <div class="news-publisher">{{ article.publisher }}</div>
+            </div>
+        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-    </div>
- 
+    {% endif %}
+
     <!-- Financial Statements -->
     <div class="financials-section">
-        <div class="section-title">// FINANCIAL STATEMENTS</div>
+        <div class="section-title" style="margin-bottom:1rem;">// FINANCIAL STATEMENTS</div>
         <div class="fin-buttons">
-            <button class="fin-btn" onclick="toggleFin('earnings', this)">📊 Annual Earnings</button>
-            <button class="fin-btn" onclick="toggleFin('quarterly', this)">📊 Quarterly Earnings</button>
-            <button class="fin-btn" onclick="toggleFin('balance', this)">📋 Balance Sheet</button>
+            <button class="fin-btn" onclick="toggleFin('earnings', this)">Annual Income</button>
+            <button class="fin-btn" onclick="toggleFin('quarterly', this)">Quarterly Income</button>
+            <button class="fin-btn" onclick="toggleFin('balance', this)">Balance Sheet</button>
+            <button class="fin-btn" onclick="toggleFin('cashflow', this)">Cash Flow</button>
         </div>
- 
-        <div id="earnings" class="fin-table-wrap">{{ data.income_stmt | safe }}</div>
+
+        <div id="earnings"  class="fin-table-wrap">{{ data.income_stmt | safe }}</div>
         <div id="quarterly" class="fin-table-wrap">{{ data.quarterly_income | safe }}</div>
-        <div id="balance" class="fin-table-wrap">{{ data.balance_sheet | safe }}</div>
+        <div id="balance"   class="fin-table-wrap">{{ data.balance_sheet | safe }}</div>
+        <div id="cashflow"  class="fin-table-wrap">{{ data.cashflow | safe }}</div>
     </div>
- 
-    <a href="/" class="back-link">← Search another stock</a>
- 
+
 </div>
- 
+
 <script>
-    // Chart
-    const dates = {{ data.dates | tojson }};
+    // ── Format market cap ──
+    const rawCap = {{ data.market_cap | tojson }};
+    if (rawCap) {
+        const el = document.getElementById('mktcap');
+        if (rawCap >= 1e12)      el.textContent = '$' + (rawCap / 1e12).toFixed(2) + 'T';
+        else if (rawCap >= 1e9)  el.textContent = '$' + (rawCap / 1e9).toFixed(2) + 'B';
+        else if (rawCap >= 1e6)  el.textContent = '$' + (rawCap / 1e6).toFixed(2) + 'M';
+        else                     el.textContent = '$' + rawCap.toLocaleString();
+    } else {
+        document.getElementById('mktcap').textContent = 'N/A';
+    }
+
+    // ── Price chart ──
+    const dates  = {{ data.dates  | tojson }};
     const prices = {{ data.prices | tojson }};
- 
+    const ma50   = {{ data.ma50   | tojson }};
+    const ma200  = {{ data.ma200  | tojson }};
+
     new Chart(document.getElementById("priceChart"), {
         type: "line",
         data: {
             labels: dates,
-            datasets: [{
-                label: "Price (1Y)",
-                data: prices,
-                borderColor: "#00ff88",
-                borderWidth: 1.5,
-                pointRadius: 0,
-                fill: true,
-                backgroundColor: (ctx) => {
-                    const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 300);
-                    gradient.addColorStop(0, "rgba(0,255,136,0.15)");
-                    gradient.addColorStop(1, "rgba(0,255,136,0)");
-                    return gradient;
+            datasets: [
+                {
+                    label: "Price",
+                    data: prices,
+                    borderColor: "#00ff88",
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    fill: true,
+                    backgroundColor: (ctx) => {
+                        const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 300);
+                        gradient.addColorStop(0, "rgba(0,255,136,0.15)");
+                        gradient.addColorStop(1, "rgba(0,255,136,0)");
+                        return gradient;
+                    },
+                    tension: 0.3,
+                    order: 3,
                 },
-                tension: 0.3,
-            }]
+                {
+                    label: "50D MA",
+                    data: ma50,
+                    borderColor: "#0099ff",
+                    borderWidth: 1.2,
+                    pointRadius: 0,
+                    fill: false,
+                    tension: 0.3,
+                    spanGaps: false,
+                    order: 2,
+                },
+                {
+                    label: "200D MA",
+                    data: ma200,
+                    borderColor: "#ffcc00",
+                    borderWidth: 1.2,
+                    pointRadius: 0,
+                    fill: false,
+                    tension: 0.3,
+                    spanGaps: false,
+                    order: 1,
+                }
+            ]
         },
         options: {
             responsive: true,
+            interaction: { mode: "index", intersect: false },
             plugins: {
                 legend: { display: false },
                 tooltip: {
@@ -453,11 +702,14 @@
                     borderColor: "#1e1e2e",
                     borderWidth: 1,
                     titleColor: "#555570",
-                    bodyColor: "#00ff88",
+                    bodyColor: "#e0e0f0",
                     titleFont: { family: "Space Mono", size: 10 },
-                    bodyFont: { family: "Space Mono", size: 12 },
+                    bodyFont: { family: "Space Mono", size: 11 },
                     callbacks: {
-                        label: (ctx) => ` $${ctx.parsed.y}`
+                        label: (ctx) => {
+                            if (ctx.parsed.y === null) return null;
+                            return ` ${ctx.dataset.label}: $${ctx.parsed.y}`;
+                        }
                     }
                 }
             },
@@ -482,22 +734,61 @@
             }
         }
     });
- 
-    // Toggle financial tables
+
+    // ── Financial tabs ──
     function toggleFin(id, btn) {
         const allTables = document.querySelectorAll('.fin-table-wrap');
-        const allBtns = document.querySelectorAll('.fin-btn');
-        const target = document.getElementById(id);
-        const isOpen = target.classList.contains('open');
- 
+        const allBtns   = document.querySelectorAll('.fin-btn');
+        const target    = document.getElementById(id);
+        const isOpen    = target.classList.contains('open');
+
         allTables.forEach(t => t.classList.remove('open'));
         allBtns.forEach(b => b.classList.remove('active'));
- 
+
         if (!isOpen) {
             target.classList.add('open');
             btn.classList.add('active');
         }
     }
+
+    // ── Watchlist ──
+    const TICKER = "{{ data.name }}";
+    const LONGNAME = "{{ data.longname }}";
+
+    function getWatchlist() {
+        return JSON.parse(localStorage.getItem('stockview_watchlist') || '[]');
+    }
+
+    function saveWatchlist(list) {
+        localStorage.setItem('stockview_watchlist', JSON.stringify(list));
+    }
+
+    function updateWatchlistBtn() {
+        const list = getWatchlist();
+        const btn = document.getElementById('watchlistBtn');
+        const saved = list.some(item => item.ticker === TICKER);
+        if (saved) {
+            btn.textContent = '✓ SAVED';
+            btn.classList.add('saved');
+        } else {
+            btn.textContent = '+ WATCHLIST';
+            btn.classList.remove('saved');
+        }
+    }
+
+    function toggleWatchlist() {
+        let list = getWatchlist();
+        const idx = list.findIndex(item => item.ticker === TICKER);
+        if (idx === -1) {
+            list.push({ ticker: TICKER, name: LONGNAME });
+        } else {
+            list.splice(idx, 1);
+        }
+        saveWatchlist(list);
+        updateWatchlistBtn();
+    }
+
+    updateWatchlistBtn();
 </script>
 </body>
 </html>
