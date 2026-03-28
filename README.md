@@ -6,13 +6,17 @@ A personal stock analytics dashboard built with Python and Flask. Search any sto
 
 ## Features
 
-- Live Stock and ETF Data - pulls real-time prices, sector, EPS, and analyst targets via yfinance
-- Valuation Signals - three investor-grade formulas to assess whether a stock is worth buying
-- 1-Year Price Chart - interactive Chart.js line chart with gradient fill and custom tooltips
-- Latest News - top 5 news articles with thumbnails and publisher names
-- Financial Statements - toggle between Annual Earnings, Quarterly Earnings, and Balance Sheet
-- ETF Support - handles both stocks and ETFs gracefully (sector vs category fallback)
-- Smart Caching - stock data cached for 15 minutes to improve speed and reduce API calls
+- Live Stock and ETF Data — pulls real-time prices, sector, EPS, and analyst targets via yfinance
+- Investor Metrics — market cap, dividend yield, beta, forward P/E, next earnings date, day change
+- Valuation Signals — three investor-grade formulas to assess whether a stock is worth buying
+- Moving Averages — 50D and 200D MA lines overlaid on the price chart
+- 1-Year Price Chart — interactive Chart.js line chart with gradient fill and custom tooltips
+- Latest News — top 5 news articles with thumbnails and publisher names
+- Financial Statements — toggle between Annual Earnings, Quarterly Earnings, Balance Sheet, and Cash Flow
+- ETF Support — handles both stocks and ETFs gracefully (sector vs category fallback)
+- Smart Caching — stock data cached for 15 minutes to improve speed and reduce API calls
+- Watchlist — save tickers to a persistent watchlist via localStorage, shown on the home page
+- Inline Search — search a new ticker directly from the results page
 
 ---
 
@@ -59,9 +63,9 @@ Position % = ((Current Price - 52W Low) / (52W High - 52W Low)) x 100
 | Frontend | HTML + CSS + JS | Dashboard interface |
 | Charts | Chart.js | Interactive price history chart |
 | Templating | Jinja2 | Passing Python data into HTML |
+| Caching | Flask-Caching | 15-minute in-memory cache |
 | Server | Gunicorn | Production WSGI server |
-| Tunnel | Tunnelmole | Public URL for self-hosted server |
-| Hardware | Raspberry Pi 3 A+ | Self-hosted server |
+| Hosting | PythonAnywhere | Cloud hosting (free tier) |
 
 ---
 
@@ -74,12 +78,13 @@ Stocks-Analytical/
     +-- app.py                  # Flask routes and app entry point
     +-- stocks.py               # Data fetching and valuation logic
     +-- requirements.txt        # Python dependencies
-    +-- cache/                  # Cached stock data (auto-generated)
+    +-- wsgi.py                 # PythonAnywhere WSGI config
     |
     +-- templates/
         +-- home.html           # Search page
         +-- results.html        # Dashboard results page
         +-- about.html          # About page
+        +-- error.html          # Error page (invalid ticker / API failure)
 ```
 
 ---
@@ -88,7 +93,7 @@ Stocks-Analytical/
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/Stocks-Analytical.git
+git clone https://github.com/Ifeoluwa90/Stocks-Analytical.git
 cd Stocks-Analytical/main
 ```
 
@@ -116,118 +121,58 @@ http://127.0.0.1:5000
 
 ---
 
-## Deployment (Raspberry Pi + Tunnelmole)
+## Deployment (PythonAnywhere)
 
-This app is self-hosted on a Raspberry Pi running Raspberry Pi OS Lite (64-bit) and exposed to the internet via Tunnelmole.
+This app is hosted on [PythonAnywhere](https://www.pythonanywhere.com) — free tier, no hardware required.
 
-### Server Setup
+### Setup
+
+1. Sign up at **pythonanywhere.com**
+2. Go to **Dashboard → Web → Add a new web app → Manual configuration → Python 3.10**
+3. Open a Bash console and run:
 
 ```bash
-# SSH into the Pi
-ssh YOUR_USERNAME@YOUR_PI_IP
-
-# Update and install dependencies
-sudo apt update && sudo apt upgrade -y
-sudo apt install python3-pip python3-venv git nodejs npm -y
-
-# Clone the project
-git clone https://github.com/YOUR_GITHUB_USERNAME/Stocks-Analytical.git
+git clone https://github.com/Ifeoluwa90/Stocks-Analytical.git
 cd Stocks-Analytical/main
-
-# Set up virtual environment
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-mkdir cache
-
-# Install Tunnelmole
-sudo npm install -g tunnelmole
+pip install -r requirements.txt --user
 ```
 
-### Auto-start with Systemd
+4. In the **Web tab → WSGI configuration file**, replace the contents with `wsgi.py` — update `<your-username>` to your PythonAnywhere username
+5. Click **Reload** — the app will be live at `<username>.pythonanywhere.com`
 
-Both Gunicorn and Tunnelmole are configured to start automatically on boot.
+### Updating after changes
 
-#### Gunicorn service
-Create `/etc/systemd/system/stockview.service`:
-```ini
-[Unit]
-Description=StockView Flask App
-After=network.target
-
-[Service]
-User=YOUR_USERNAME
-WorkingDirectory=/home/YOUR_USERNAME/Stocks-Analytical/main
-ExecStart=/home/YOUR_USERNAME/Stocks-Analytical/main/venv/bin/gunicorn -w 2 -b 127.0.0.1:5000 app:app
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-```
-
-#### Tunnelmole service
-Create `/etc/systemd/system/tunnelmole.service`:
-```ini
-[Unit]
-Description=Tunnelmole Tunnel
-After=network.target stockview.service
-
-[Service]
-User=YOUR_USERNAME
-ExecStart=/usr/local/bin/tmole 5000
-Restart=always
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-```
-
-#### Enable both services
 ```bash
-sudo systemctl enable stockview
-sudo systemctl enable tunnelmole
-sudo systemctl start stockview
-sudo systemctl start tunnelmole
+cd Stocks-Analytical && git pull
+touch /var/www/<username>_pythonanywhere_com_wsgi.py
 ```
-
-#### Verify both are running
-```bash
-sudo systemctl status stockview
-sudo systemctl status tunnelmole
-```
-
-### Get the public URL
-```bash
-curl -s http://localhost:4040/api/tunnels | python3 -m json.tool
-```
-
-Share the public URL with friends - no warning page, no sleep, always on.
 
 ---
 
 ## Usage
 
-1. Enter a stock or ETF ticker on the home page (e.g. AAPL, TSLA, SPY)
-2. View the live price, key stats, and valuation signals
-3. Scroll down to see the 1-year price chart
-4. Read the latest news with thumbnails and source links
-5. Toggle Annual Earnings, Quarterly Earnings, or Balance Sheet as needed
+1. Enter a stock or ETF ticker on the home page (e.g. AAPL, TSLA, SPY) or click a suggestion pill
+2. View the live price, day change, and key investor metrics
+3. Check valuation signals and the beta risk indicator
+4. Scroll down to see the 1-year price chart with 50D and 200D moving averages
+5. Read the latest news with thumbnails and source links
+6. Toggle Annual Earnings, Quarterly Earnings, Balance Sheet, or Cash Flow
+7. Save stocks to your watchlist with the **+ WATCHLIST** button — they appear on the home page
 
 ---
 
 ## Known Considerations
 
-- ETFs do not have P/E ratio or EPS data - these will show as N/A
+- ETFs do not have P/E ratio or EPS data — these will show as N/A
 - News requires yfinance v0.2.x+ due to updated Yahoo Finance API structure
-- Financial statements may be unavailable for some tickers - handled gracefully
-- Tunnelmole URL changes on restart unless upgraded to a paid plan
-- Raspberry Pi 3 A+ has 512MB RAM - avoid more than 2-3 simultaneous users
+- Financial statements may be unavailable for some tickers — handled gracefully
+- PythonAnywhere free tier has a daily CPU allowance — sufficient for personal/low-traffic use
 
 ---
 
 ## Data Source
 
-All data is sourced from [yfinance](https://github.com/ranaroussi/yfinance) - a free, open-source Python library that pulls data from Yahoo Finance. No API key required.
+All data is sourced from [yfinance](https://github.com/ranaroussi/yfinance) — a free, open-source Python library that pulls data from Yahoo Finance. No API key required.
 
 Disclaimer: This dashboard is for personal and educational use only. Nothing here constitutes financial advice. Always do your own research before making investment decisions.
 
@@ -235,19 +180,18 @@ Disclaimer: This dashboard is for personal and educational use only. Nothing her
 
 ## Credits
 
-- Built by - Ife
-- UI Design - [Claude](https://claude.ai) (Anthropic)
-- Data - yfinance / Yahoo Finance
-- Charts - Chart.js
-- Fonts - Syne + Space Mono (Google Fonts)
-- Hosting - Raspberry Pi (self-hosted)
-- Tunnel - Tunnelmole
+- Built by — Ife
+- UI Design — [Claude](https://claude.ai) (Anthropic)
+- Data — yfinance / Yahoo Finance
+- Charts — Chart.js
+- Fonts — Syne + Space Mono (Google Fonts)
+- Hosting — PythonAnywhere
 
 ---
 
 ## What I Learned Building This
 
-This project was built from scratch as a Python learning journey, going from complete beginner to a working full-stack web application deployed on a real self-hosted server. Key concepts covered:
+This project was built from scratch as a Python learning journey, going from complete beginner to a working full-stack web application deployed to the cloud. Key concepts covered:
 
 - Python fundamentals (variables, loops, conditionals, functions)
 - Working with external libraries and APIs
@@ -256,11 +200,10 @@ This project was built from scratch as a Python learning journey, going from com
 - HTML structure and CSS styling
 - JavaScript for chart rendering and UI interactions
 - Handling real-world data edge cases (missing fields, ETF vs stock differences)
+- Input validation and error handling
+- Caching strategies for API-heavy applications
 - Git version control and branch management
-- Linux server administration (SSH, systemd)
-- Self-hosted deployment on Raspberry Pi
-- Virtual environments and production-grade servers with Gunicorn
-- Public tunneling with Tunnelmole
+- Cloud deployment with PythonAnywhere
 
 ---
 
