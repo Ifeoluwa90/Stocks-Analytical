@@ -147,6 +147,7 @@
         .ticker-pill:hover {
             border-color: var(--accent);
             color: var(--accent);
+            cursor: pointer;
         }
 
         nav {
@@ -188,7 +189,7 @@
             </div>
         </form>
 
-        <div class="tickers">
+        <div class="tickers" id="defaultTickers">
             <span class="ticker-pill">AAPL</span>
             <span class="ticker-pill">TSLA</span>
             <span class="ticker-pill">MSFT</span>
@@ -196,6 +197,39 @@
             <span class="ticker-pill">NVDA</span>
             <span class="ticker-pill">AMZN</span>
         </div>
+
+        <div id="watchlistSection" style="display:none; margin-top:2rem;">
+            <p style="font-family:'Space Mono',monospace; font-size:0.65rem; color:var(--muted); letter-spacing:0.2em; margin-bottom:0.75rem;">// WATCHLIST</p>
+            <div class="tickers" id="watchlistPills"></div>
+        </div>
     </div>
+
+    <script>
+        function submitTicker(ticker) {
+            const input = document.querySelector('input[name="ticker"]');
+            input.value = ticker;
+            input.closest('form').submit();
+        }
+
+        document.querySelectorAll('.ticker-pill').forEach(pill => {
+            pill.addEventListener('click', () => submitTicker(pill.textContent));
+        });
+
+        // Watchlist
+        const watchlist = JSON.parse(localStorage.getItem('stockview_watchlist') || '[]');
+        if (watchlist.length > 0) {
+            const section = document.getElementById('watchlistSection');
+            const container = document.getElementById('watchlistPills');
+            watchlist.forEach(item => {
+                const pill = document.createElement('span');
+                pill.className = 'ticker-pill';
+                pill.textContent = item.ticker;
+                pill.title = item.name;
+                pill.addEventListener('click', () => submitTicker(item.ticker));
+                container.appendChild(pill);
+            });
+            section.style.display = 'block';
+        }
+    </script>
 </body>
 </html>
